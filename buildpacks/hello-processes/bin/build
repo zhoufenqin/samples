@@ -14,15 +14,18 @@ sysinfo_layer_dir="${layers_dir}/sys-info"
 mkdir -p ${sysinfo_layer_dir}
 
 cat > "${sysinfo_layer_dir}.toml" << EOF
-launch = true
+[types]
+  launch = true
 EOF
 
 sysinfo_script="${sysinfo_layer_dir}/sys-info.sh"
 cat > ${sysinfo_script} <<EOL
 #!/usr/bin/env bash
+set -e
 
-echo "     env vars:"
-export | sed 's/^/       /'
+echo "export JAVA_HOME=$JAVA_HOME" >> ~/.bashrc
+#exec java org.springframework.boot.loader.JarLauncher
+exec /cnb/process/web
 EOL
 
 chmod +x ${sysinfo_script}
@@ -31,6 +34,7 @@ cat >> "${layers_dir}/launch.toml" <<EOL
 [[processes]]
 type = "sys-info"
 command = "${sysinfo_script}"
+direct = true
 EOL
 
 echo "---> Done"
